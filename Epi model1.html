@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<!-- saved from url=(0014)about:internet -->
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta http-equiv="x-ua-compatible" content="IE=9" >
+
+<title>Epi model1.R</title>
+
+<style type="text/css">
+body, td {
+   font-family: sans-serif;
+   background-color: white;
+   font-size: 12px;
+   margin: 8px;
+}
+
+tt, code, pre {
+   font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace;
+}
+
+h1 { 
+   font-size:2.2em; 
+}
+
+h2 { 
+   font-size:1.8em; 
+}
+
+h3 { 
+   font-size:1.4em; 
+}
+
+h4 { 
+   font-size:1.0em; 
+}
+
+h5 { 
+   font-size:0.9em; 
+}
+
+h6 { 
+   font-size:0.8em; 
+}
+
+a:visited {
+   color: rgb(50%, 0%, 50%);
+}
+
+pre {	
+   margin-top: 0;
+   max-width: 95%;
+   border: 1px solid #ccc;
+   white-space: pre-wrap;
+}
+
+pre code {
+   display: block; padding: 0.5em;
+}
+
+code.r, code.cpp {
+   background-color: #F8F8F8;
+}
+
+table, td, th {
+  border: none;
+}
+
+blockquote {
+   color:#666666;
+   margin:0;
+   padding-left: 1em;
+   border-left: 0.5em #EEE solid;
+}
+
+hr {
+   height: 0px;
+   border-bottom: none;
+   border-top-width: thin;
+   border-top-style: dotted;
+   border-top-color: #999999;
+}
+
+@media print {
+   * { 
+      background: transparent !important; 
+      color: black !important; 
+      filter:none !important; 
+      -ms-filter: none !important; 
+   }
+
+   body { 
+      font-size:12pt; 
+      max-width:100%; 
+   }
+       
+   a, a:visited { 
+      text-decoration: underline; 
+   }
+
+   hr { 
+      visibility: hidden;
+      page-break-before: always;
+   }
+
+   pre, blockquote { 
+      padding-right: 1em; 
+      page-break-inside: avoid; 
+   }
+
+   tr, img { 
+      page-break-inside: avoid; 
+   }
+
+   img { 
+      max-width: 100% !important; 
+   }
+
+   @page :left { 
+      margin: 15mm 20mm 15mm 10mm; 
+   }
+     
+   @page :right { 
+      margin: 15mm 10mm 15mm 20mm; 
+   }
+
+   p, h2, h3 { 
+      orphans: 3; widows: 3; 
+   }
+
+   h2, h3 { 
+      page-break-after: avoid; 
+   }
+}
+
+</style>
+
+<!-- Styles for R syntax highlighter -->
+<style type="text/css">
+   pre .operator,
+   pre .paren {
+     color: rgb(104, 118, 135)
+   }
+
+   pre .literal {
+     color: rgb(88, 72, 246)
+   }
+
+   pre .number {
+     color: rgb(0, 0, 205);
+   }
+
+   pre .comment {
+     color: rgb(76, 136, 107);
+   }
+
+   pre .keyword {
+     color: rgb(0, 0, 255);
+   }
+
+   pre .identifier {
+     color: rgb(0, 0, 0);
+   }
+
+   pre .string {
+     color: rgb(3, 106, 7);
+   }
+</style>
+
+<!-- R syntax highlighter -->
+<script type="text/javascript">
+var hljs=new function(){function m(p){return p.replace(/&/gm,"&amp;").replace(/</gm,"&lt;")}function f(r,q,p){return RegExp(q,"m"+(r.cI?"i":"")+(p?"g":""))}function b(r){for(var p=0;p<r.childNodes.length;p++){var q=r.childNodes[p];if(q.nodeName=="CODE"){return q}if(!(q.nodeType==3&&q.nodeValue.match(/\s+/))){break}}}function h(t,s){var p="";for(var r=0;r<t.childNodes.length;r++){if(t.childNodes[r].nodeType==3){var q=t.childNodes[r].nodeValue;if(s){q=q.replace(/\n/g,"")}p+=q}else{if(t.childNodes[r].nodeName=="BR"){p+="\n"}else{p+=h(t.childNodes[r])}}}if(/MSIE [678]/.test(navigator.userAgent)){p=p.replace(/\r/g,"\n")}return p}function a(s){var r=s.className.split(/\s+/);r=r.concat(s.parentNode.className.split(/\s+/));for(var q=0;q<r.length;q++){var p=r[q].replace(/^language-/,"");if(e[p]){return p}}}function c(q){var p=[];(function(s,t){for(var r=0;r<s.childNodes.length;r++){if(s.childNodes[r].nodeType==3){t+=s.childNodes[r].nodeValue.length}else{if(s.childNodes[r].nodeName=="BR"){t+=1}else{if(s.childNodes[r].nodeType==1){p.push({event:"start",offset:t,node:s.childNodes[r]});t=arguments.callee(s.childNodes[r],t);p.push({event:"stop",offset:t,node:s.childNodes[r]})}}}}return t})(q,0);return p}function k(y,w,x){var q=0;var z="";var s=[];function u(){if(y.length&&w.length){if(y[0].offset!=w[0].offset){return(y[0].offset<w[0].offset)?y:w}else{return w[0].event=="start"?y:w}}else{return y.length?y:w}}function t(D){var A="<"+D.nodeName.toLowerCase();for(var B=0;B<D.attributes.length;B++){var C=D.attributes[B];A+=" "+C.nodeName.toLowerCase();if(C.value!==undefined&&C.value!==false&&C.value!==null){A+='="'+m(C.value)+'"'}}return A+">"}while(y.length||w.length){var v=u().splice(0,1)[0];z+=m(x.substr(q,v.offset-q));q=v.offset;if(v.event=="start"){z+=t(v.node);s.push(v.node)}else{if(v.event=="stop"){var p,r=s.length;do{r--;p=s[r];z+=("</"+p.nodeName.toLowerCase()+">")}while(p!=v.node);s.splice(r,1);while(r<s.length){z+=t(s[r]);r++}}}}return z+m(x.substr(q))}function j(){function q(x,y,v){if(x.compiled){return}var u;var s=[];if(x.k){x.lR=f(y,x.l||hljs.IR,true);for(var w in x.k){if(!x.k.hasOwnProperty(w)){continue}if(x.k[w] instanceof Object){u=x.k[w]}else{u=x.k;w="keyword"}for(var r in u){if(!u.hasOwnProperty(r)){continue}x.k[r]=[w,u[r]];s.push(r)}}}if(!v){if(x.bWK){x.b="\\b("+s.join("|")+")\\s"}x.bR=f(y,x.b?x.b:"\\B|\\b");if(!x.e&&!x.eW){x.e="\\B|\\b"}if(x.e){x.eR=f(y,x.e)}}if(x.i){x.iR=f(y,x.i)}if(x.r===undefined){x.r=1}if(!x.c){x.c=[]}x.compiled=true;for(var t=0;t<x.c.length;t++){if(x.c[t]=="self"){x.c[t]=x}q(x.c[t],y,false)}if(x.starts){q(x.starts,y,false)}}for(var p in e){if(!e.hasOwnProperty(p)){continue}q(e[p].dM,e[p],true)}}function d(B,C){if(!j.called){j();j.called=true}function q(r,M){for(var L=0;L<M.c.length;L++){if((M.c[L].bR.exec(r)||[null])[0]==r){return M.c[L]}}}function v(L,r){if(D[L].e&&D[L].eR.test(r)){return 1}if(D[L].eW){var M=v(L-1,r);return M?M+1:0}return 0}function w(r,L){return L.i&&L.iR.test(r)}function K(N,O){var M=[];for(var L=0;L<N.c.length;L++){M.push(N.c[L].b)}var r=D.length-1;do{if(D[r].e){M.push(D[r].e)}r--}while(D[r+1].eW);if(N.i){M.push(N.i)}return f(O,M.join("|"),true)}function p(M,L){var N=D[D.length-1];if(!N.t){N.t=K(N,E)}N.t.lastIndex=L;var r=N.t.exec(M);return r?[M.substr(L,r.index-L),r[0],false]:[M.substr(L),"",true]}function z(N,r){var L=E.cI?r[0].toLowerCase():r[0];var M=N.k[L];if(M&&M instanceof Array){return M}return false}function F(L,P){L=m(L);if(!P.k){return L}var r="";var O=0;P.lR.lastIndex=0;var M=P.lR.exec(L);while(M){r+=L.substr(O,M.index-O);var N=z(P,M);if(N){x+=N[1];r+='<span class="'+N[0]+'">'+M[0]+"</span>"}else{r+=M[0]}O=P.lR.lastIndex;M=P.lR.exec(L)}return r+L.substr(O,L.length-O)}function J(L,M){if(M.sL&&e[M.sL]){var r=d(M.sL,L);x+=r.keyword_count;return r.value}else{return F(L,M)}}function I(M,r){var L=M.cN?'<span class="'+M.cN+'">':"";if(M.rB){y+=L;M.buffer=""}else{if(M.eB){y+=m(r)+L;M.buffer=""}else{y+=L;M.buffer=r}}D.push(M);A+=M.r}function G(N,M,Q){var R=D[D.length-1];if(Q){y+=J(R.buffer+N,R);return false}var P=q(M,R);if(P){y+=J(R.buffer+N,R);I(P,M);return P.rB}var L=v(D.length-1,M);if(L){var O=R.cN?"</span>":"";if(R.rE){y+=J(R.buffer+N,R)+O}else{if(R.eE){y+=J(R.buffer+N,R)+O+m(M)}else{y+=J(R.buffer+N+M,R)+O}}while(L>1){O=D[D.length-2].cN?"</span>":"";y+=O;L--;D.length--}var r=D[D.length-1];D.length--;D[D.length-1].buffer="";if(r.starts){I(r.starts,"")}return R.rE}if(w(M,R)){throw"Illegal"}}var E=e[B];var D=[E.dM];var A=0;var x=0;var y="";try{var s,u=0;E.dM.buffer="";do{s=p(C,u);var t=G(s[0],s[1],s[2]);u+=s[0].length;if(!t){u+=s[1].length}}while(!s[2]);if(D.length>1){throw"Illegal"}return{r:A,keyword_count:x,value:y}}catch(H){if(H=="Illegal"){return{r:0,keyword_count:0,value:m(C)}}else{throw H}}}function g(t){var p={keyword_count:0,r:0,value:m(t)};var r=p;for(var q in e){if(!e.hasOwnProperty(q)){continue}var s=d(q,t);s.language=q;if(s.keyword_count+s.r>r.keyword_count+r.r){r=s}if(s.keyword_count+s.r>p.keyword_count+p.r){r=p;p=s}}if(r.language){p.second_best=r}return p}function i(r,q,p){if(q){r=r.replace(/^((<[^>]+>|\t)+)/gm,function(t,w,v,u){return w.replace(/\t/g,q)})}if(p){r=r.replace(/\n/g,"<br>")}return r}function n(t,w,r){var x=h(t,r);var v=a(t);var y,s;if(v){y=d(v,x)}else{return}var q=c(t);if(q.length){s=document.createElement("pre");s.innerHTML=y.value;y.value=k(q,c(s),x)}y.value=i(y.value,w,r);var u=t.className;if(!u.match("(\\s|^)(language-)?"+v+"(\\s|$)")){u=u?(u+" "+v):v}if(/MSIE [678]/.test(navigator.userAgent)&&t.tagName=="CODE"&&t.parentNode.tagName=="PRE"){s=t.parentNode;var p=document.createElement("div");p.innerHTML="<pre><code>"+y.value+"</code></pre>";t=p.firstChild.firstChild;p.firstChild.cN=s.cN;s.parentNode.replaceChild(p.firstChild,s)}else{t.innerHTML=y.value}t.className=u;t.result={language:v,kw:y.keyword_count,re:y.r};if(y.second_best){t.second_best={language:y.second_best.language,kw:y.second_best.keyword_count,re:y.second_best.r}}}function o(){if(o.called){return}o.called=true;var r=document.getElementsByTagName("pre");for(var p=0;p<r.length;p++){var q=b(r[p]);if(q){n(q,hljs.tabReplace)}}}function l(){if(window.addEventListener){window.addEventListener("DOMContentLoaded",o,false);window.addEventListener("load",o,false)}else{if(window.attachEvent){window.attachEvent("onload",o)}else{window.onload=o}}}var e={};this.LANGUAGES=e;this.highlight=d;this.highlightAuto=g;this.fixMarkup=i;this.highlightBlock=n;this.initHighlighting=o;this.initHighlightingOnLoad=l;this.IR="[a-zA-Z][a-zA-Z0-9_]*";this.UIR="[a-zA-Z_][a-zA-Z0-9_]*";this.NR="\\b\\d+(\\.\\d+)?";this.CNR="\\b(0[xX][a-fA-F0-9]+|(\\d+(\\.\\d*)?|\\.\\d+)([eE][-+]?\\d+)?)";this.BNR="\\b(0b[01]+)";this.RSR="!|!=|!==|%|%=|&|&&|&=|\\*|\\*=|\\+|\\+=|,|\\.|-|-=|/|/=|:|;|<|<<|<<=|<=|=|==|===|>|>=|>>|>>=|>>>|>>>=|\\?|\\[|\\{|\\(|\\^|\\^=|\\||\\|=|\\|\\||~";this.ER="(?![\\s\\S])";this.BE={b:"\\\\.",r:0};this.ASM={cN:"string",b:"'",e:"'",i:"\\n",c:[this.BE],r:0};this.QSM={cN:"string",b:'"',e:'"',i:"\\n",c:[this.BE],r:0};this.CLCM={cN:"comment",b:"//",e:"$"};this.CBLCLM={cN:"comment",b:"/\\*",e:"\\*/"};this.HCM={cN:"comment",b:"#",e:"$"};this.NM={cN:"number",b:this.NR,r:0};this.CNM={cN:"number",b:this.CNR,r:0};this.BNM={cN:"number",b:this.BNR,r:0};this.inherit=function(r,s){var p={};for(var q in r){p[q]=r[q]}if(s){for(var q in s){p[q]=s[q]}}return p}}();hljs.LANGUAGES.cpp=function(){var a={keyword:{"false":1,"int":1,"float":1,"while":1,"private":1,"char":1,"catch":1,"export":1,virtual:1,operator:2,sizeof:2,dynamic_cast:2,typedef:2,const_cast:2,"const":1,struct:1,"for":1,static_cast:2,union:1,namespace:1,unsigned:1,"long":1,"throw":1,"volatile":2,"static":1,"protected":1,bool:1,template:1,mutable:1,"if":1,"public":1,friend:2,"do":1,"return":1,"goto":1,auto:1,"void":2,"enum":1,"else":1,"break":1,"new":1,extern:1,using:1,"true":1,"class":1,asm:1,"case":1,typeid:1,"short":1,reinterpret_cast:2,"default":1,"double":1,register:1,explicit:1,signed:1,typename:1,"try":1,"this":1,"switch":1,"continue":1,wchar_t:1,inline:1,"delete":1,alignof:1,char16_t:1,char32_t:1,constexpr:1,decltype:1,noexcept:1,nullptr:1,static_assert:1,thread_local:1,restrict:1,_Bool:1,complex:1},built_in:{std:1,string:1,cin:1,cout:1,cerr:1,clog:1,stringstream:1,istringstream:1,ostringstream:1,auto_ptr:1,deque:1,list:1,queue:1,stack:1,vector:1,map:1,set:1,bitset:1,multiset:1,multimap:1,unordered_set:1,unordered_map:1,unordered_multiset:1,unordered_multimap:1,array:1,shared_ptr:1}};return{dM:{k:a,i:"</",c:[hljs.CLCM,hljs.CBLCLM,hljs.QSM,{cN:"string",b:"'\\\\?.",e:"'",i:"."},{cN:"number",b:"\\b(\\d+(\\.\\d*)?|\\.\\d+)(u|U|l|L|ul|UL|f|F)"},hljs.CNM,{cN:"preprocessor",b:"#",e:"$"},{cN:"stl_container",b:"\\b(deque|list|queue|stack|vector|map|set|bitset|multiset|multimap|unordered_map|unordered_set|unordered_multiset|unordered_multimap|array)\\s*<",e:">",k:a,r:10,c:["self"]}]}}}();hljs.LANGUAGES.r={dM:{c:[hljs.HCM,{cN:"number",b:"\\b0[xX][0-9a-fA-F]+[Li]?\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\b\\d+(?:[eE][+\\-]?\\d*)?L\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\b\\d+\\.(?!\\d)(?:i\\b)?",e:hljs.IMMEDIATE_RE,r:1},{cN:"number",b:"\\b\\d+(?:\\.\\d*)?(?:[eE][+\\-]?\\d*)?i?\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\.\\d+(?:[eE][+\\-]?\\d*)?i?\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"keyword",b:"(?:tryCatch|library|setGeneric|setGroupGeneric)\\b",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\.\\.\\.",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\.\\.\\d+(?![\\w.])",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\b(?:function)",e:hljs.IMMEDIATE_RE,r:2},{cN:"keyword",b:"(?:if|in|break|next|repeat|else|for|return|switch|while|try|stop|warning|require|attach|detach|source|setMethod|setClass)\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"literal",b:"(?:NA|NA_integer_|NA_real_|NA_character_|NA_complex_)\\b",e:hljs.IMMEDIATE_RE,r:10},{cN:"literal",b:"(?:NULL|TRUE|FALSE|T|F|Inf|NaN)\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"identifier",b:"[a-zA-Z.][a-zA-Z0-9._]*\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"operator",b:"<\\-(?!\\s*\\d)",e:hljs.IMMEDIATE_RE,r:2},{cN:"operator",b:"\\->|<\\-",e:hljs.IMMEDIATE_RE,r:1},{cN:"operator",b:"%%|~",e:hljs.IMMEDIATE_RE},{cN:"operator",b:">=|<=|==|!=|\\|\\||&&|=|\\+|\\-|\\*|/|\\^|>|<|!|&|\\||\\$|:",e:hljs.IMMEDIATE_RE,r:0},{cN:"operator",b:"%",e:"%",i:"\\n",r:1},{cN:"identifier",b:"`",e:"`",r:0},{cN:"string",b:'"',e:'"',c:[hljs.BE],r:0},{cN:"string",b:"'",e:"'",c:[hljs.BE],r:0},{cN:"paren",b:"[[({\\])}]",e:hljs.IMMEDIATE_RE,r:0}]}};
+hljs.initHighlightingOnLoad();
+</script>
+
+
+
+
+</head>
+
+<body>
+<!-- Automatically generated by RStudio [12861c30b10411e1afa60800200c9a66] -->
+
+<h3>Epi model1.R</h3>
+
+<p>nargesd &mdash; <em>Sep 29, 2014, 3:02 AM</em></p>
+
+<pre><code class="r">#Reproducing the sexual contact network of a sample in Uganda.
+
+rm(list=ls()) 
+graphics.off()
+
+#Packages that we need:
+require(&#39;statnet&#39;)
+</code></pre>
+
+<pre><code>Loading required package: statnet
+</code></pre>
+
+<pre><code>Warning: package &#39;statnet&#39; was built under R version 3.0.3
+</code></pre>
+
+<pre><code>Loading required package: network
+network: Classes for Relational Data
+Version 1.9.0 created on 2014-01-03.
+copyright (c) 2005, Carter T. Butts, University of California-Irvine
+                    Mark S. Handcock, University of California -- Los Angeles
+                    David R. Hunter, Penn State University
+                    Martina Morris, University of Washington
+                    Skye Bender-deMoll, University of Washington
+ For citation information, type citation(&quot;network&quot;).
+ Type help(&quot;network-package&quot;) to get started.
+
+Loading required package: ergm
+Loading required package: statnet.common
+
+ergm: version 3.1.2, created on 2014-01-30
+Copyright (c) 2014, Mark S. Handcock, University of California -- Los Angeles
+                    David R. Hunter, Penn State University
+                    Carter T. Butts, University of California -- Irvine
+                    Steven M. Goodreau, University of Washington
+                    Pavel N. Krivitsky, University of Wollongong
+                    Martina Morris, University of Washington
+Based on &quot;statnet&quot; project software (statnet.org).
+For license and citation information see statnet.org/attribution
+or type citation(&quot;ergm&quot;).
+
+NOTE: If you use custom ERGM terms based on &#39;ergm.userterms&#39;
+version prior to 3.1, you will need to perform a one-time update
+of the package boilerplate files (the files that you did not write
+or modify) from &#39;ergm.userterms&#39; 3.1 or later. See
+help(&#39;eut-upgrade&#39;) for instructions.
+
+NOTE: Dynamic network modeling functionality (STERGMs) has been
+moved to a new package, &#39;tergm&#39;.
+
+Loading required package: sna
+</code></pre>
+
+<pre><code>Warning: package &#39;sna&#39; was built under R version 3.0.3
+</code></pre>
+
+<pre><code>sna: Tools for Social Network Analysis
+Version 2.3-2 created on 2014-01-13.
+copyright (c) 2005, Carter T. Butts, University of California-Irvine
+ For citation information, type citation(&quot;sna&quot;).
+ Type help(package=&quot;sna&quot;) to get started.
+
+
+Attaching package: &#39;sna&#39;
+
+The following object is masked from &#39;package:network&#39;:
+
+    %c%
+
+Loading required package: networkDynamic
+</code></pre>
+
+<pre><code>Warning: package &#39;networkDynamic&#39; was built under R version 3.0.3
+</code></pre>
+
+<pre><code>
+networkDynamic: version 0.6.3, created on 2014-02-27
+Copyright (c) 2014, Carter T. Butts, University of California -- Irvine
+                    Ayn Leslie-Cook, University of Washington
+                    Pavel N. Krivitsky, University of Wollongong
+                    Skye Bender-deMoll, University of Washington
+                    with contributions from
+                    Zack Almquist, University of California -- Irvine
+                    David R. Hunter, Penn State University
+                    Li Wang
+                    Kirk Li, University of Washington
+                    Steven M. Goodreau, University of Washington
+                    Martina Morris, University of Washington
+Based on &quot;statnet&quot; project software (statnet.org).
+For license and citation information see statnet.org/attribution
+or type citation(&quot;networkDynamic&quot;).
+
+Loading required package: tergm
+
+tergm: version 3.1.4, created on 2014-01-16
+Copyright (c) 2014, Pavel N. Krivitsky, University of Wollongong
+                    Mark S. Handcock, University of California -- Los Angeles
+                    with contributions from
+                    David R. Hunter, Penn State University
+                    Steven M. Goodreau, University of Washington
+                    Martina Morris, University of Washington
+                    Nicole Bohme Carnegie, New York University
+                    Carter T. Butts, University of California -- Irvine
+                    Ayn Leslie-Cook, University of Washington
+                    Skye Bender-deMoll
+Based on &quot;statnet&quot; project software (statnet.org).
+For license and citation information see statnet.org/attribution
+or type citation(&quot;tergm&quot;).
+
+Loading required package: ergm.count
+</code></pre>
+
+<pre><code>Warning: package &#39;ergm.count&#39; was built under R version 3.0.3
+</code></pre>
+
+<pre><code>
+ergm.count: version 3.1.1, created on 2013-03-29
+Copyright (c) 2013, Pavel N. Krivitsky, University of Wollongong
+                    with contributions from
+                    Mark S. Handcock, University of California -- Los Angeles
+                    David R. Hunter, Penn State University
+Based on &quot;statnet&quot; project software (statnet.org).
+For license and citation information see statnet.org/attribution
+or type citation(&quot;ergm.count&quot;).
+
+Loading required package: latentnet
+</code></pre>
+
+<pre><code>Warning: package &#39;latentnet&#39; was built under R version 3.0.3
+</code></pre>
+
+<pre><code>
+latentnet: version 2.5.1, created on 2014-02-17
+Copyright (c) 2014, Pavel N. Krivitsky, University of Wollongong
+                    Mark S. Handcock, University of California -- Los Angeles
+                    with contributions from
+                    Susan M. Shortreed
+                    Jeremy Tantrum
+                    Peter D. Hoff
+Based on &quot;statnet&quot; project software (statnet.org).
+For license and citation information see statnet.org/attribution
+or type citation(&quot;latentnet&quot;).
+
+
+Attaching package: &#39;latentnet&#39;
+
+The following object is masked from &#39;package:base&#39;:
+
+    scale
+
+
+statnet: version 2014.2.0, created on 2014-02-05
+Copyright (c) 2014, Mark S. Handcock, University of California -- Los Angeles
+                    David R. Hunter, Penn State University
+                    Carter T. Butts, University of California -- Irvine
+                    Steven M. Goodreau, University of Washington
+                    Pavel N. Krivitsky, University of Wollongong
+                    Skye Bender-deMoll
+                    Martina Morris, University of Washington
+Based on &quot;statnet&quot; project software (statnet.org).
+For license and citation information see statnet.org/attribution
+or type citation(&quot;statnet&quot;).
+</code></pre>
+
+<pre><code class="r">require(&#39;coda&#39;)
+</code></pre>
+
+<pre><code>Loading required package: coda
+</code></pre>
+
+<pre><code>Warning: package &#39;coda&#39; was built under R version 3.0.3
+</code></pre>
+
+<pre><code>Loading required package: lattice
+
+Attaching package: &#39;coda&#39;
+
+The following object is masked from &#39;package:latentnet&#39;:
+
+    as.mcmc
+</code></pre>
+
+<pre><code class="r">
+
+#Creating the empty netwrok with 500 male and 400 female.
+uga.net &lt;- network.initialize(900,directed=F)
+uga.net %v% &#39;sex&#39; &lt;- c(rep(0,500),rep(1,400))
+
+#Degree distribution of nodes based on the Measure DHS data in Uganda (2004)
+uga.deg &lt;- c(248,543,93,11,5) #Node distribution
+#The assumption is that population is hetrosexual. Following command, shows how number
+#of reported partners are defferent among men and women.
+uga.mixmat &lt;- matrix(c(0,360,292,0)/2,nrow=2,byrow=T)
+#Total number of edges(Sexual contacts)
+uga.edges &lt;- sum(uga.mixmat)
+#Total number of homosexual contacts, which is zero
+uga.sexmatch &lt;- uga.mixmat[1,1]+uga.mixmat[2,2]
+#Target statistics for the model
+uga.target.stats &lt;- c(uga.edges,uga.sexmatch)
+uga.target.stats
+</code></pre>
+
+<pre><code>[1] 326   0
+</code></pre>
+
+<pre><code class="r">
+#Building an ERGM model based on the edges and hetrosexuality in the population
+uga.fit &lt;- ergm(uga.net~edges+nodematch(&#39;sex&#39;),target.stats=uga.target.stats)
+</code></pre>
+
+<pre><code>Observed statistic(s) nodematch.sex are at their smallest attainable values. Their coefficients will be fixed at -Inf.
+</code></pre>
+
+<pre><code class="r">summary(uga.fit)
+</code></pre>
+
+<pre><code>
+==========================
+Summary of model fit
+==========================
+
+Formula:   nw ~ edges + nodematch(&quot;sex&quot;)
+&lt;environment: 0x000000000b1c6ab8&gt;
+
+Iterations:  20 
+
+Monte Carlo MLE Results:
+              Estimate Std. Error MCMC % p-value    
+edges          -6.4175     0.0554     NA  &lt;1e-04 ***
+nodematch.sex     -Inf         NA     NA      NA    
+---
+Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+
+     Null Deviance: 560825  on 404550  degrees of freedom
+ Residual Deviance: 288403  on 404548  degrees of freedom
+
+AIC: 288407    BIC: 288429    (Smaller is better.) 
+
+ Warning: The following terms have infinite coefficient estimates:
+  nodematch.sex 
+</code></pre>
+
+<pre><code class="r">
+#Simulation of the current network from the ERGM model
+uga.sim1 &lt;-simulate(uga.fit)
+plot(uga.sim1,vertex.cex=0.65,vertex.col=&quot;sex&quot;)
+
+#Comparing model results with observed data
+rbind(sim=summary(uga.sim1 ~ degree(c(0:4))), obs=uga.deg)
+</code></pre>
+
+<pre><code>    degree0 degree1 degree2 degree3 degree4
+sim     426     330     110      24       8
+obs     248     543      93      11       5
+</code></pre>
+
+<pre><code class="r">mixingmatrix(uga.sim1, &quot;sex&quot;)
+</code></pre>
+
+<pre><code>Note:  Marginal totals can be misleading
+ for undirected mixing matrices.
+    0   1
+0   0 332
+1 332   0
+</code></pre>
+
+<pre><code class="r">uga.mixmat
+</code></pre>
+
+<pre><code>     [,1] [,2]
+[1,]    0  180
+[2,]  146    0
+</code></pre>
+
+<pre><code class="r">
+#We simulate the ergm model for 100 times to see if observed data
+#matches the model results
+uga.sim100 &lt;- simulate(uga.fit, nsim=100)
+uga.sim100
+</code></pre>
+
+<pre><code>Number of Networks: 100 
+Model: nw ~ edges + nodematch(&quot;sex&quot;) 
+Reference: ~Bernoulli 
+Constraints: ~. 
+Parameters:
+        edges nodematch.sex 
+       -6.418    -10000.000 
+</code></pre>
+
+<pre><code class="r">
+summary(uga.sim100)
+</code></pre>
+
+<pre><code>Number of Networks: 100 
+Model: nw ~ edges + nodematch(&quot;sex&quot;) 
+Reference: ~Bernoulli 
+Constraints: ~. 
+Parameters:
+        edges nodematch.sex 
+       -6.418    -10000.000 
+
+Stored network statistics:
+       edges nodematch.sex
+  [1,]   342             0
+  [2,]   340             0
+  [3,]   340             0
+  [4,]   339             0
+  [5,]   349             0
+  [6,]   332             0
+  [7,]   334             0
+  [8,]   344             0
+  [9,]   355             0
+ [10,]   350             0
+ [11,]   354             0
+ [12,]   348             0
+ [13,]   342             0
+ [14,]   341             0
+ [15,]   335             0
+ [16,]   334             0
+ [17,]   342             0
+ [18,]   337             0
+ [19,]   341             0
+ [20,]   333             0
+ [21,]   319             0
+ [22,]   309             0
+ [23,]   303             0
+ [24,]   288             0
+ [25,]   295             0
+ [26,]   311             0
+ [27,]   325             0
+ [28,]   331             0
+ [29,]   311             0
+ [30,]   318             0
+ [31,]   328             0
+ [32,]   323             0
+ [33,]   324             0
+ [34,]   322             0
+ [35,]   330             0
+ [36,]   333             0
+ [37,]   331             0
+ [38,]   338             0
+ [39,]   345             0
+ [40,]   332             0
+ [41,]   332             0
+ [42,]   321             0
+ [43,]   332             0
+ [44,]   334             0
+ [45,]   340             0
+ [46,]   340             0
+ [47,]   330             0
+ [48,]   327             0
+ [49,]   322             0
+ [50,]   318             0
+ [51,]   323             0
+ [52,]   323             0
+ [53,]   324             0
+ [54,]   334             0
+ [55,]   334             0
+ [56,]   327             0
+ [57,]   327             0
+ [58,]   327             0
+ [59,]   321             0
+ [60,]   319             0
+ [61,]   319             0
+ [62,]   318             0
+ [63,]   322             0
+ [64,]   324             0
+ [65,]   327             0
+ [66,]   330             0
+ [67,]   337             0
+ [68,]   335             0
+ [69,]   345             0
+ [70,]   349             0
+ [71,]   354             0
+ [72,]   348             0
+ [73,]   346             0
+ [74,]   359             0
+ [75,]   350             0
+ [76,]   357             0
+ [77,]   344             0
+ [78,]   341             0
+ [79,]   338             0
+ [80,]   336             0
+ [81,]   334             0
+ [82,]   329             0
+ [83,]   337             0
+ [84,]   335             0
+ [85,]   329             0
+ [86,]   333             0
+ [87,]   331             0
+ [88,]   324             0
+ [89,]   323             0
+ [90,]   320             0
+ [91,]   325             0
+ [92,]   327             0
+ [93,]   331             0
+ [94,]   336             0
+ [95,]   350             0
+ [96,]   345             0
+ [97,]   346             0
+ [98,]   357             0
+ [99,]   353             0
+[100,]   349             0
+</code></pre>
+
+<pre><code class="r">
+#Compare the model results with observed data
+sim.stats &lt;- attr(uga.sim100,&quot;stats&quot;)
+rbind(sim=colMeans(sim.stats), obs=uga.target.stats)
+</code></pre>
+
+<pre><code>    edges nodematch.sex
+sim   333             0
+obs   326             0
+</code></pre>
+
+<pre><code class="r">
+#Model results look pretty close to the observed data
+matplot(1:nrow(sim.stats), sim.stats, 
+        pch=c(&quot;e&quot;,&quot;m&quot;,&quot;0&quot;,&quot;+&quot;), cex=.65, 
+        main=&quot;100 simulations from uga.fit model&quot;, sub=&quot;(default settings)&quot;,
+        xlab=&quot;Replicate&quot;, ylab=&quot;frequency&quot;)
+abline(h=uga.target.stats, col=c(1:2))
+#The lines show the target statistics in the observed data
+#To get rid of the auto correlation. We increase MCMC
+#interval to get more indeoendent realization.
+
+
+uga.sim100 &lt;- simulate(uga.fit, nsim=100,
+                       control=control.simulate.ergm(MCMC.interval=10000))
+sim.stats &lt;- attr(uga.sim100,&quot;stats&quot;)
+matplot(1:nrow(sim.stats), sim.stats,
+        pch=c(&quot;e&quot;,&quot;m&quot;), cex=.65,
+        main=&quot;100 simulations from uga.fit model&quot;, sub=&quot;(MCMC.interval=10000)&quot;,
+        xlab=&quot;Replicate&quot;, ylab=&quot;frequency&quot;)
+abline(h=uga.target.stats, col=c(1:2))
+#Total edges randomly distributed around the observed data and there is no
+#autocorrelation
+
+
+#Now we will fit the degree distribution.
+sim.fulldeg &lt;- summary(uga.sim100 ~ degree(c(0:10)))
+colnames(sim.fulldeg) &lt;- paste(&quot;deg&quot;,0:10, sep=&#39;&#39;)
+sim.fulldeg[1:5,]
+</code></pre>
+
+<pre><code>     deg0 deg1 deg2 deg3 deg4 deg5 deg6 deg7 deg8 deg9 deg10
+[1,]  434  325  106   27    8    0    0    0    0    0     0
+[2,]  439  313  121   19    6    2    0    0    0    0     0
+[3,]  405  340  118   32    5    0    0    0    0    0     0
+[4,]  455  294  119   26    6    0    0    0    0    0     0
+[5,]  436  321  111   28    3    1    0    0    0    0     0
+</code></pre>
+
+<pre><code class="r">
+#The data shows that less than 0.1% of population,
+#have more than 4 partners. We put them in 4+degree been
+sim.deg &lt;- cbind(sim.fulldeg[,1:4], apply(sim.fulldeg[,5:11],1,sum))
+colnames(sim.deg) &lt;- c(colnames(sim.fulldeg)[1:4],&quot;degree4+&quot;)
+rbind(sim=colMeans(sim.deg), obs=uga.deg)
+</code></pre>
+
+<pre><code>     deg0  deg1  deg2  deg3 degree4+
+sim 432.6 317.2 115.7 28.02     6.43
+obs 248.0 543.0  93.0 11.00     5.00
+</code></pre>
+
+<pre><code class="r">#Results show that the the difference between the results of single simulation
+#and observed data is quite large.
+
+#plot the degree distribution for the observed data in line 
+#and simulated results in numbers.
+matplot(1:nrow(sim.deg), sim.deg, pch=as.character(0:4), cex=.5,
+        main=&quot;Comparing uga.sims to non-targeted degree frequencies&quot;,
+        sub = &quot;(only total edges targeted)&quot;,
+        xlab = &quot;Replicate&quot;, ylab = &quot;Frequencies&quot;)
+abline(h=c(248,543,93,11,5), col=c(1:5))
+
+#We refit the model with targeting degree 0 people
+uga.isolates &lt;- uga.deg[1]
+uga.target.stats &lt;- c(uga.edges, uga.sexmatch, uga.isolates)
+uga.fit &lt;- ergm(uga.net ~ edges + nodematch(&#39;sex&#39;) + degree(0),
+                target.stats = uga.target.stats) 
+</code></pre>
+
+<pre><code>Observed statistic(s) nodematch.sex are at their smallest attainable values. Their coefficients will be fixed at -Inf.
+Iteration 1 of at most 20: 
+Convergence test P-value: 8.9e-01 
+Convergence detected. Stopping.
+</code></pre>
+
+<pre><code>Warning: Approximate Hessian matrix is singular. Standard errors due to
+MCMC approximation of the likelihood cannot be evaluated. This is likely
+due to highly correlated model terms.
+</code></pre>
+
+<pre><code>The log-likelihood improved by 0.0001716 
+</code></pre>
+
+<pre><code>Warning: Observed statistic(s) nodematch.sex are at their smallest
+attainable values and drop=FALSE. The MLE is poorly defined.
+</code></pre>
+
+<pre><code>
+This model was fit using MCMC.  To examine model diagnostics and check for degeneracy, use the mcmc.diagnostics() function.
+</code></pre>
+
+<pre><code class="r">
+summary(uga.fit)
+</code></pre>
+
+<pre><code>
+==========================
+Summary of model fit
+==========================
+
+Formula:   nw ~ edges + nodematch(&quot;sex&quot;) + degree(0)
+&lt;environment: 0x0000000017a01948&gt;
+
+Iterations:  20 
+
+Monte Carlo MLE Results:
+              Estimate Std. Error MCMC % p-value    
+edges         -43.2905     0.0295     NA  &lt;1e-04 ***
+nodematch.sex     -Inf         NA     NA      NA    
+degree0       -19.8058     0.0591     NA  &lt;1e-04 ***
+---
+Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+
+Warning:  The standard errors are suspect due to possible poor convergence.
+
+     Null Deviance: 560825  on 404550  degrees of freedom
+ Residual Deviance:    NaN  on 404547  degrees of freedom
+
+AIC: NaN    BIC: NaN    (Smaller is better.) 
+
+ Warning: The following terms have infinite coefficient estimates:
+  nodematch.sex 
+</code></pre>
+
+<pre><code class="r">
+uga.sim100 &lt;- simulate(uga.fit, nsim=100,
+                       control=control.simulate.ergm(MCMC.interval=10000))
+sim.stats &lt;- attr(uga.sim100,&quot;stats&quot;)
+rbind(sim=colMeans(sim.stats), obs=uga.target.stats)
+</code></pre>
+
+<pre><code>    edges nodematch.sex degree0
+sim 326.7             0   246.5
+obs 326.0             0   248.0
+</code></pre>
+
+<pre><code class="r">
+sim.fulldeg &lt;- summary(uga.sim100 ~ degree(c(0:10)))
+sim.deg &lt;- cbind(sim.fulldeg[,1:4], apply(sim.fulldeg[,5:11],1,sum))
+colnames(sim.deg) &lt;- c(colnames(sim.fulldeg)[1:4],&quot;degree4+&quot;)
+rbind(sim=colMeans(sim.deg), obs=uga.deg)
+</code></pre>
+
+<pre><code>    degree0 degree1 degree2 degree3 degree4+
+sim   246.5   653.5       0       0        0
+obs   248.0   543.0      93      11        5
+</code></pre>
+
+<pre><code class="r">
+matplot(1:nrow(sim.deg), sim.deg, pch=as.character(0:3), cex=.5,
+        main=&quot;Comparing uga.sims to non-targeted degree frequencies&quot;,
+        sub = &quot;(only 0, 2+ and total edges targeted)&quot;,
+        xlab = &quot;Replicate&quot;, ylab = &quot;Frequencies&quot;)
+abline(h=c(248,543,93,11,5), col=c(1:5))
+</code></pre>
+
+</body>
+
+</html>
+

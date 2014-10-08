@@ -207,22 +207,22 @@ require("coda")
 
 
 # Creating the empty netwrok with 500 male and 400 female.
-ego.net <- network.initialize(900, directed = F)
-ego.net %v% "sex" <- c(rep(0, 500), rep(1, 400))
+uga.net <- network.initialize(900, directed = F)
+uga.net %v% "sex" <- c(rep(0, 500), rep(1, 400))
 
 # Degree distribution of nodes based on the Measure DHS data in Uganda
 # (2004)
-ego.deg <- c(248, 543, 93, 11, 5)  #Node distribution
+uga.deg <- c(248, 543, 93, 11, 5)  #Node distribution
 # The assumption is that population is hetrosexual. Following command, shows
 # how number of reported partners are defferent among men and women.
-ego.mixmat <- matrix(c(0, 360, 292, 0)/2, nrow = 2, byrow = T)
+uga.mixmat <- matrix(c(0, 360, 292, 0)/2, nrow = 2, byrow = T)
 # Total number of edges(Sexual contacts)
-ego.edges <- sum(ego.mixmat)
+uga.edges <- sum(uga.mixmat)
 # Total number of homosexual contacts, which is zero
-ego.sexmatch <- ego.mixmat[1, 1] + ego.mixmat[2, 2]
+uga.sexmatch <- uga.mixmat[1, 1] + uga.mixmat[2, 2]
 # Target statistics for the model
-ego.target.stats <- c(ego.edges, ego.sexmatch)
-ego.target.stats
+uga.target.stats <- c(uga.edges, uga.sexmatch)
+uga.target.stats
 ```
 
 ```
@@ -233,7 +233,7 @@ ego.target.stats
 
 # Building an ERGM model based on the edges and hetrosexuality in the
 # population
-ego.fit <- ergm(ego.net ~ edges + nodematch("sex"), target.stats = ego.target.stats)
+uga.fit <- ergm(uga.net ~ edges + nodematch("sex"), target.stats = uga.target.stats)
 ```
 
 ```
@@ -241,7 +241,7 @@ ego.fit <- ergm(ego.net ~ edges + nodematch("sex"), target.stats = ego.target.st
 ```
 
 ```r
-summary(ego.fit)
+summary(uga.fit)
 ```
 
 ```
@@ -251,7 +251,7 @@ summary(ego.fit)
 ## ==========================
 ## 
 ## Formula:   nw ~ edges + nodematch("sex")
-## <environment: 0x000000000b160538>
+## <environment: 0x000000000b2fe098>
 ## 
 ## Iterations:  20 
 ## 
@@ -274,12 +274,12 @@ summary(ego.fit)
 ```r
 
 # Simulation of the current network from the ERGM model
-ego.sim1 <- simulate(ego.fit)
+uga.sim1 <- simulate(uga.fit)
 ```
 
 
 ```r
-plot(ego.sim1, vertex.cex = 0.65, vertex.col = "sex")
+plot(uga.sim1, vertex.cex = 0.65, vertex.col = "sex")
 ```
 
 ![plot of chunk unnamed-chunk-2](figure/unnamed-chunk-2.png) 
@@ -287,29 +287,29 @@ plot(ego.sim1, vertex.cex = 0.65, vertex.col = "sex")
 #Comparing model results with observed data
 
 ```r
-rbind(sim = summary(ego.sim1 ~ degree(c(0:4))), obs = ego.deg)
+rbind(sim = summary(uga.sim1 ~ degree(c(0:4))), obs = uga.deg)
 ```
 
 ```
 ##     degree0 degree1 degree2 degree3 degree4
-## sim     418     332     114      31       4
+## sim     441     315     115      27       1
 ## obs     248     543      93      11       5
 ```
 
 ```r
-mixingmatrix(ego.sim1, "sex")
+mixingmatrix(uga.sim1, "sex")
 ```
 
 ```
 ## Note:  Marginal totals can be misleading
 ##  for undirected mixing matrices.
 ##     0   1
-## 0   0 337
-## 1 337   0
+## 0   0 318
+## 1 318   0
 ```
 
 ```r
-ego.mixmat
+uga.mixmat
 ```
 
 ```
@@ -322,8 +322,8 @@ ego.mixmat
 
 # We simulate the ergm model for 100 times to see if observed data matches
 # the model results
-ego.sim100 <- simulate(ego.fit, nsim = 100)
-ego.sim100
+uga.sim100 <- simulate(uga.fit, nsim = 100)
+uga.sim100
 ```
 
 ```
@@ -338,7 +338,7 @@ ego.sim100
 
 ```r
 
-summary(ego.sim100)
+summary(uga.sim100)
 ```
 
 ```
@@ -352,118 +352,118 @@ summary(ego.sim100)
 ## 
 ## Stored network statistics:
 ##        edges nodematch.sex
-##   [1,]   349             0
-##   [2,]   348             0
-##   [3,]   353             0
-##   [4,]   358             0
-##   [5,]   367             0
-##   [6,]   356             0
-##   [7,]   367             0
-##   [8,]   381             0
-##   [9,]   375             0
-##  [10,]   375             0
-##  [11,]   373             0
-##  [12,]   372             0
-##  [13,]   376             0
-##  [14,]   364             0
-##  [15,]   368             0
-##  [16,]   370             0
-##  [17,]   361             0
-##  [18,]   340             0
-##  [19,]   344             0
-##  [20,]   348             0
-##  [21,]   352             0
-##  [22,]   344             0
-##  [23,]   350             0
-##  [24,]   353             0
-##  [25,]   358             0
-##  [26,]   351             0
-##  [27,]   342             0
-##  [28,]   343             0
-##  [29,]   337             0
-##  [30,]   337             0
-##  [31,]   334             0
-##  [32,]   338             0
-##  [33,]   332             0
-##  [34,]   331             0
-##  [35,]   315             0
-##  [36,]   322             0
-##  [37,]   321             0
-##  [38,]   325             0
-##  [39,]   322             0
-##  [40,]   324             0
-##  [41,]   318             0
-##  [42,]   309             0
-##  [43,]   313             0
-##  [44,]   307             0
-##  [45,]   318             0
-##  [46,]   318             0
-##  [47,]   328             0
-##  [48,]   325             0
-##  [49,]   325             0
-##  [50,]   335             0
-##  [51,]   332             0
-##  [52,]   328             0
-##  [53,]   336             0
-##  [54,]   339             0
-##  [55,]   327             0
-##  [56,]   327             0
-##  [57,]   323             0
-##  [58,]   326             0
-##  [59,]   325             0
-##  [60,]   325             0
-##  [61,]   316             0
-##  [62,]   319             0
-##  [63,]   315             0
-##  [64,]   318             0
-##  [65,]   319             0
-##  [66,]   311             0
-##  [67,]   321             0
-##  [68,]   319             0
-##  [69,]   307             0
-##  [70,]   305             0
-##  [71,]   303             0
-##  [72,]   309             0
-##  [73,]   308             0
-##  [74,]   311             0
-##  [75,]   326             0
-##  [76,]   326             0
-##  [77,]   317             0
-##  [78,]   315             0
-##  [79,]   322             0
-##  [80,]   333             0
-##  [81,]   338             0
-##  [82,]   331             0
-##  [83,]   334             0
-##  [84,]   336             0
-##  [85,]   332             0
-##  [86,]   337             0
-##  [87,]   324             0
-##  [88,]   320             0
-##  [89,]   318             0
-##  [90,]   319             0
-##  [91,]   330             0
-##  [92,]   329             0
-##  [93,]   337             0
-##  [94,]   338             0
-##  [95,]   326             0
-##  [96,]   326             0
-##  [97,]   328             0
-##  [98,]   326             0
-##  [99,]   325             0
-## [100,]   321             0
+##   [1,]   313             0
+##   [2,]   319             0
+##   [3,]   335             0
+##   [4,]   330             0
+##   [5,]   332             0
+##   [6,]   330             0
+##   [7,]   338             0
+##   [8,]   330             0
+##   [9,]   330             0
+##  [10,]   331             0
+##  [11,]   331             0
+##  [12,]   334             0
+##  [13,]   328             0
+##  [14,]   330             0
+##  [15,]   318             0
+##  [16,]   325             0
+##  [17,]   316             0
+##  [18,]   319             0
+##  [19,]   324             0
+##  [20,]   318             0
+##  [21,]   312             0
+##  [22,]   308             0
+##  [23,]   322             0
+##  [24,]   324             0
+##  [25,]   319             0
+##  [26,]   319             0
+##  [27,]   309             0
+##  [28,]   308             0
+##  [29,]   318             0
+##  [30,]   309             0
+##  [31,]   317             0
+##  [32,]   319             0
+##  [33,]   319             0
+##  [34,]   307             0
+##  [35,]   305             0
+##  [36,]   302             0
+##  [37,]   302             0
+##  [38,]   316             0
+##  [39,]   300             0
+##  [40,]   302             0
+##  [41,]   295             0
+##  [42,]   289             0
+##  [43,]   275             0
+##  [44,]   285             0
+##  [45,]   276             0
+##  [46,]   276             0
+##  [47,]   275             0
+##  [48,]   273             0
+##  [49,]   270             0
+##  [50,]   279             0
+##  [51,]   281             0
+##  [52,]   285             0
+##  [53,]   287             0
+##  [54,]   282             0
+##  [55,]   285             0
+##  [56,]   293             0
+##  [57,]   295             0
+##  [58,]   293             0
+##  [59,]   297             0
+##  [60,]   307             0
+##  [61,]   304             0
+##  [62,]   311             0
+##  [63,]   299             0
+##  [64,]   305             0
+##  [65,]   306             0
+##  [66,]   301             0
+##  [67,]   313             0
+##  [68,]   325             0
+##  [69,]   331             0
+##  [70,]   332             0
+##  [71,]   334             0
+##  [72,]   335             0
+##  [73,]   338             0
+##  [74,]   337             0
+##  [75,]   336             0
+##  [76,]   346             0
+##  [77,]   335             0
+##  [78,]   325             0
+##  [79,]   335             0
+##  [80,]   327             0
+##  [81,]   326             0
+##  [82,]   320             0
+##  [83,]   323             0
+##  [84,]   324             0
+##  [85,]   329             0
+##  [86,]   333             0
+##  [87,]   329             0
+##  [88,]   343             0
+##  [89,]   349             0
+##  [90,]   351             0
+##  [91,]   355             0
+##  [92,]   348             0
+##  [93,]   352             0
+##  [94,]   341             0
+##  [95,]   337             0
+##  [96,]   346             0
+##  [97,]   343             0
+##  [98,]   335             0
+##  [99,]   330             0
+## [100,]   332             0
 ```
 
 ```r
 
 # Compare the model results with observed data
-sim.stats <- attr(ego.sim100, "stats")
-rbind(sim = colMeans(sim.stats), obs = ego.target.stats)
+sim.stats <- attr(uga.sim100, "stats")
+rbind(sim = colMeans(sim.stats), obs = uga.target.stats)
 ```
 
 ```
 ##     edges nodematch.sex
-## sim 333.6             0
+## sim 316.9             0
 ## obs 326.0             0
 ```
 
@@ -471,9 +471,9 @@ rbind(sim = colMeans(sim.stats), obs = ego.target.stats)
 ```r
 # Model results look pretty close to the observed data
 matplot(1:nrow(sim.stats), sim.stats, pch = c("e", "m", "0", "+"), cex = 0.65, 
-    main = "100 simulations from ego.fit model", sub = "(default settings)", 
+    main = "100 simulations from uga.fit model", sub = "(default settings)", 
     xlab = "Replicate", ylab = "frequency")
-abline(h = ego.target.stats, col = c(1:2))
+abline(h = uga.target.stats, col = c(1:2))
 ```
 
 ![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4.png) 
@@ -486,15 +486,15 @@ abline(h = ego.target.stats, col = c(1:2))
 
 
 ```r
-ego.sim100 <- simulate(ego.fit, nsim = 100, control = control.simulate.ergm(MCMC.interval = 10000))
-sim.stats <- attr(ego.sim100, "stats")
+uga.sim100 <- simulate(uga.fit, nsim = 100, control = control.simulate.ergm(MCMC.interval = 10000))
+sim.stats <- attr(uga.sim100, "stats")
 ```
 
 
 ```r
-matplot(1:nrow(sim.stats), sim.stats, pch = c("e", "m"), cex = 0.65, main = "100 simulations from ego.fit model", 
+matplot(1:nrow(sim.stats), sim.stats, pch = c("e", "m"), cex = 0.65, main = "100 simulations from uga.fit model", 
     sub = "(MCMC.interval=10000)", xlab = "Replicate", ylab = "frequency")
-abline(h = ego.target.stats, col = c(1:2))
+abline(h = uga.target.stats, col = c(1:2))
 ```
 
 ![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-6.png) 
@@ -508,18 +508,18 @@ abline(h = ego.target.stats, col = c(1:2))
 #Now we will fit the degree distribution.
 
 ```r
-sim.fulldeg <- summary(ego.sim100 ~ degree(c(0:10)))
+sim.fulldeg <- summary(uga.sim100 ~ degree(c(0:10)))
 colnames(sim.fulldeg) <- paste("deg", 0:10, sep = "")
 sim.fulldeg[1:5, ]
 ```
 
 ```
 ##      deg0 deg1 deg2 deg3 deg4 deg5 deg6 deg7 deg8 deg9 deg10
-## [1,]  461  304  103   29    2    1    0    0    0    0     0
-## [2,]  391  337  119   46    6    1    0    0    0    0     0
-## [3,]  462  314   91   29    3    1    0    0    0    0     0
-## [4,]  432  334  103   28    3    0    0    0    0    0     0
-## [5,]  437  312  116   32    1    2    0    0    0    0     0
+## [1,]  492  296   88   18    6    0    0    0    0    0     0
+## [2,]  447  308  117   23    4    1    0    0    0    0     0
+## [3,]  415  335  113   29    8    0    0    0    0    0     0
+## [4,]  454  306  119   20    1    0    0    0    0    0     0
+## [5,]  439  295  123   35    8    0    0    0    0    0     0
 ```
 
 ```r
@@ -528,13 +528,13 @@ sim.fulldeg[1:5, ]
 # partners. We put them in 4+degree been
 sim.deg <- cbind(sim.fulldeg[, 1:4], apply(sim.fulldeg[, 5:11], 1, sum))
 colnames(sim.deg) <- c(colnames(sim.fulldeg)[1:4], "degree4+")
-rbind(sim = colMeans(sim.deg), obs = ego.deg)
+rbind(sim = colMeans(sim.deg), obs = uga.deg)
 ```
 
 ```
-##      deg0  deg1  deg2  deg3 degree4+
-## sim 438.6 314.7 112.8 27.87     5.99
-## obs 248.0 543.0  93.0 11.00     5.00
+##      deg0  deg1 deg2  deg3 degree4+
+## sim 438.4 314.4  113 27.75     6.43
+## obs 248.0 543.0   93 11.00     5.00
 ```
 
 #Results show that the the difference between the results of single simulation
@@ -544,7 +544,7 @@ rbind(sim = colMeans(sim.deg), obs = ego.deg)
 #and simulated results in numbers.
 
 ```r
-matplot(1:nrow(sim.deg), sim.deg, pch = as.character(0:4), cex = 0.5, main = "Comparing ego.sims to non-targeted degree frequencies", 
+matplot(1:nrow(sim.deg), sim.deg, pch = as.character(0:4), cex = 0.5, main = "Comparing uga.sims to non-targeted degree frequencies", 
     sub = "(only total edges targeted)", xlab = "Replicate", ylab = "Frequencies")
 abline(h = c(248, 543, 93, 11, 5), col = c(1:5))
 ```
@@ -554,18 +554,18 @@ abline(h = c(248, 543, 93, 11, 5), col = c(1:5))
 
 ```r
 # We refit the model with targeting degree 0 people
-ego.isolates <- ego.deg[1]
-ego.target.stats <- c(ego.edges, ego.sexmatch, ego.isolates)
-ego.fit <- ergm(ego.net ~ edges + nodematch("sex") + degree(0), target.stats = ego.target.stats)
+uga.isolates <- uga.deg[1]
+uga.target.stats <- c(uga.edges, uga.sexmatch, uga.isolates)
+uga.fit <- ergm(uga.net ~ edges + nodematch("sex") + degree(0), target.stats = uga.target.stats)
 ```
 
 ```
 ## Observed statistic(s) nodematch.sex are at their smallest attainable values. Their coefficients will be fixed at -Inf.
 ## Iteration 1 of at most 20: 
-## Convergence test P-value: 3.2e-01 
-## The log-likelihood improved by 0.001685 
+## Convergence test P-value: 4.8e-01 
+## The log-likelihood improved by 0.0008844 
 ## Iteration 2 of at most 20: 
-## Convergence test P-value: 9.7e-01 
+## Convergence test P-value: 9.5e-01 
 ## Convergence detected. Stopping.
 ```
 
@@ -591,7 +591,7 @@ ego.fit <- ergm(ego.net ~ edges + nodematch("sex") + degree(0), target.stats = e
 
 ```r
 
-summary(ego.fit)
+summary(uga.fit)
 ```
 
 ```
@@ -601,15 +601,15 @@ summary(ego.fit)
 ## ==========================
 ## 
 ## Formula:   nw ~ edges + nodematch("sex") + degree(0)
-## <environment: 0x000000000cd3ec78>
+## <environment: 0x00000000179d51e0>
 ## 
 ## Iterations:  20 
 ## 
 ## Monte Carlo MLE Results:
 ##               Estimate Std. Error MCMC % p-value    
-## edges         -44.1858     0.0330     NA  <1e-04 ***
+## edges         -44.1861     0.0310     NA  <1e-04 ***
 ## nodematch.sex     -Inf         NA     NA      NA    
-## degree0       -20.2514     0.0661     NA  <1e-04 ***
+## degree0       -20.2507     0.0619     NA  <1e-04 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
@@ -626,34 +626,34 @@ summary(ego.fit)
 
 ```r
 
-ego.sim100 <- simulate(ego.fit, nsim = 100, control = control.simulate.ergm(MCMC.interval = 10000))
-sim.stats <- attr(ego.sim100, "stats")
-rbind(sim = colMeans(sim.stats), obs = ego.target.stats)
+uga.sim100 <- simulate(uga.fit, nsim = 100, control = control.simulate.ergm(MCMC.interval = 10000))
+sim.stats <- attr(uga.sim100, "stats")
+rbind(sim = colMeans(sim.stats), obs = uga.target.stats)
 ```
 
 ```
 ##     edges nodematch.sex degree0
-## sim 325.7             0   248.5
+## sim 326.1             0   247.7
 ## obs 326.0             0   248.0
 ```
 
 ```r
 
-sim.fulldeg <- summary(ego.sim100 ~ degree(c(0:10)))
+sim.fulldeg <- summary(uga.sim100 ~ degree(c(0:10)))
 sim.deg <- cbind(sim.fulldeg[, 1:4], apply(sim.fulldeg[, 5:11], 1, sum))
 colnames(sim.deg) <- c(colnames(sim.fulldeg)[1:4], "degree4+")
-rbind(sim = colMeans(sim.deg), obs = ego.deg)
+rbind(sim = colMeans(sim.deg), obs = uga.deg)
 ```
 
 ```
 ##     degree0 degree1 degree2 degree3 degree4+
-## sim   248.5   651.5       0       0        0
+## sim   247.7   652.3       0       0        0
 ## obs   248.0   543.0      93      11        5
 ```
 
 
 ```r
-matplot(1:nrow(sim.deg), sim.deg, pch = as.character(0:3), cex = 0.5, main = "Comparing ego.sims to non-targeted degree frequencies", 
+matplot(1:nrow(sim.deg), sim.deg, pch = as.character(0:3), cex = 0.5, main = "Comparing uga.sims to non-targeted degree frequencies", 
     sub = "(only 0, 2+ and total edges targeted)", xlab = "Replicate", ylab = "Frequencies")
 abline(h = c(248, 543, 93, 11, 5), col = c(1:5))
 ```

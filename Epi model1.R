@@ -1,118 +1,260 @@
-#Reproducing the sexual contact network of a sample in Uganda.
+rm(list = ls())
 
-rm(list=ls()) 
-graphics.off()
+library(statnet)
+library(ergm)
+library(EpiModel)
+library(sna)
+library(coda)
 
-#Packages that we need:
-require('statnet')
-require('coda')
 
 
-#Creating the empty netwrok with 500 male and 400 female.
-ego.net <- network.initialize(900,directed=F)
-ego.net %v% 'sex' <- c(rep(0,500),rep(1,400))
+num.females <- 500
+num.males <- 400
+nw <- network.initialize(num.females + num.males,bipartite=num.females,directed=F)
+nw %v% 'sex' <- c(rep(1,num.females),rep(2,num.males))
 
-#Degree distribution of nodes based on the Measure DHS data in Uganda (2004)
-ego.deg <- c(248,543,93,11,5) #Node distribution
-#The assumption is that population is hetrosexual. Following command, shows how number
-#of reported partners are defferent among men and women.
-ego.mixmat <- matrix(c(0,360,292,0)/2,nrow=2,byrow=T)
-#Total number of edges(Sexual contacts)
-ego.edges <- sum(ego.mixmat)
-#Total number of homosexual contacts, which is zero
-ego.sexmatch <- ego.mixmat[1,1]+ego.mixmat[2,2]
-#Target statistics for the model
-ego.target.stats <- c(ego.edges,ego.sexmatch)
-ego.target.stats
+deg.dist.males <- c(0.27,
+                    0.53,
+                    0.17,
+                    0.030
+                    
+)
+deg.dist.females <- c(0.256,
+                      0.722,
+                      0.02,
+                      0.002
+                      
+)
 
-#Building an ERGM model based on the edges and hetrosexuality in the population
-ego.fit <- ergm(ego.net~edges+nodematch('sex'),target.stats=ego.target.stats)
-summary(ego.fit)
+#target stat
+tg.edges <- round(sum(num.males*deg.dist.males%*%c(0,1,2,3)),0)
+tg.m.0 <- round(num.males*deg.dist.males[1],0)
+tg.m.1 <- round(num.males*deg.dist.males[2],0)
+tg.f.0 <- round(num.females*deg.dist.females[1],0)
+tg.f.1 <- round(num.females*deg.dist.females[2],0)
+tg.f.2 <- round(num.females*deg.dist.males[3],0)
+tg.f.3 <- round(num.females*deg.dist.males[4],0)
+tg.f.4 <- round(num.females*deg.dist.males[5],0)
+tg.m.2 <- round(num.females*deg.dist.females[3],0)
+tg.m.3 <- round(num.females*deg.dist.females[4],0)
+tg.m.4 <- round(num.females*deg.dist.females[5],0)
 
-#Simulation of the current network from the ERGM model
-ego.sim1 <-simulate(ego.fit)
-plot(ego.sim1,vertex.cex=0.65,vertex.col="sex")
+ergm.deg=c(tg.m.0+tg.f.0,tg.m.1+tg.f.1,tg.m.2+tg.f.2,tg.m.3+tg.f.3) 
 
-#Comparing model results with observed data
-rbind(sim=summary(ego.sim1 ~ degree(c(0:4))), obs=ego.deg)
-mixingmatrix(ego.sim1, "sex")
-ego.mixmat
 
-#We simulate the ergm model for 100 times to see if observed data
-#matches the model results
-ego.sim100 <- simulate(ego.fit, nsim=100)
-ego.sim100
+target.stats <- c(tg.edges,tg.f.0,tg.m.0)
 
-summary(ego.sim100)
 
-#Compare the model results with observed data
-sim.stats <- attr(ego.sim100,"stats")
-rbind(sim=colMeans(sim.stats), obs=ego.target.stats)
+check_bip_degdist(num.females, num.males, deg.dist.females, deg.dist.males)
 
-#Model results look pretty close to the observed data
+
+ergm.fit <- ergm(nw ~ edges + b1degree(1) + b2degree(1),
+                 target.stats=target.stats)
+
+
+mcmc.diagnostics(ergm.fit)
+
+
+#Degeneracy is an indicator of a poorly specified model. It is not a property of all ERGMs, but it is associated with
+#some dyadic-dependent terms, in particular, the reduced homogenous Markov specifications (e.g., 2-stars and triangle terms).
+#For a good technical discussion of unstable terms see Schweinberger 2012. For a discussion of alternative terms that exhibit
+#more stable behavior see Snijders et al. 2006. and for the gwesp term (and the curved exponential family terms in general) 
+#see Hunter and Handcock 2006.
+
+
+#Once we have estimated the coefficients of an ERGM, the model is completely specified. It defines a probability distribution
+#across all networks of this size. If the model is a good fit to the observed data, then networks drawn from this distribution
+#will be more likely to “resemble” the observed data. 
+
+#Simulate 100 cross-sectional network from this model. Confirm that they do indeed display the expected features
+
+netsim <- simulate(ergm.fit,nsim=10)
+class(netsim)
+summary(netsim)
+netsim[[1]]
+
+plot (netsim[[10]],vertex.cex=0.6,vertex.col='sex')
+
+target.stats
+
+
+#Goodness of fit
+#Degree: degree of nodes
+#esp: Edgewise share partners
+#distance:geodesic distance
+ergm.fit.gof <- gof(ergm.fit)
+ergm.fit.gof
+
+par(mfrow=c(1,3))
+par(oma=c(0.5,2,1,0.5))
+plot(gofflo)
+plot(ergm.fit.gof)
+
+
+boxplot(attributes(netsim)$stats)
+
+#look at other features of this network beyond the terms we directly controlled. 
+#Quantify reachable path distribution using the command from sna package:
+
+#table(geodist(my.network)$gdist)/2
+
+plot(table(geodist(netsim[[1]])$gdist)/2,ylim=c(0,1000),xlab='distance',ylab='Number of dyads')
+
+#Diagnostic
+
+ergm.sim100 <- simulate(ergm.fit, nsim=100)
+ergm.sim100
+summary(ergm.sim100)
+
+sim.stats <- attr(ergm.sim100,"stats")
+rbind(sim=colMeans(sim.stats), obs=target.stats)
+
+#target.stats diagnosis
+
 matplot(1:nrow(sim.stats), sim.stats, 
         pch=c("e","m","0","+"), cex=.65, 
         main="100 simulations from ego.fit model", sub="(default settings)",
         xlab="Replicate", ylab="frequency")
-abline(h=ego.target.stats, col=c(1:2))
-#The lines show the target statistics in the observed data
-#To get rid of the auto correlation. We increase MCMC
-#interval to get more indeoendent realization.
+abline(h=target.stats, col=c(1:4))
+
+sim.stats
 
 
-ego.sim100 <- simulate(ego.fit, nsim=100,
+ego.sim100 <- simulate(ergm.fit, nsim=100,
                        control=control.simulate.ergm(MCMC.interval=10000))
 sim.stats <- attr(ego.sim100,"stats")
 matplot(1:nrow(sim.stats), sim.stats,
-        pch=c("e","m"), cex=.65,
-        main="100 simulations from ego.fit model", sub="(MCMC.interval=10000)",
+        pch=c("e","f1","m1"), cex=.65,
+        main="100 simulations from ergm.fit model", sub="(MCMC.interval=10000)",
         xlab="Replicate", ylab="frequency")
-abline(h=ego.target.stats, col=c(1:2))
-#Total edges randomly distributed around the observed data and there is no
-#autocorrelation
+abline(h=target.stats, col=c(1:3))
+abline(h=0.9*target.stats, col=c(1:3), lty=2)
+abline(h=1.1*target.stats, col=c(1:3), lty=2)
 
+#Node degree diagnosis
 
-#Now we will fit the degree distribution.
 sim.fulldeg <- summary(ego.sim100 ~ degree(c(0:10)))
 colnames(sim.fulldeg) <- paste("deg",0:10, sep='')
 sim.fulldeg[1:5,]
 
-#The data shows that less than 0.1% of population,
-#have more than 4 partners. We put them in 4+degree been
-sim.deg <- cbind(sim.fulldeg[,1:4], apply(sim.fulldeg[,5:11],1,sum))
-colnames(sim.deg) <- c(colnames(sim.fulldeg)[1:4],"degree4+")
-rbind(sim=colMeans(sim.deg), obs=ego.deg)
-#Results show that the the difference between the results of single simulation
-#and observed data is quite large.
-
-#plot the degree distribution for the observed data in line 
-#and simulated results in numbers.
-matplot(1:nrow(sim.deg), sim.deg, pch=as.character(0:4), cex=.5,
-        main="Comparing ego.sims to non-targeted degree frequencies",
-        sub = "(only total edges targeted)",
-        xlab = "Replicate", ylab = "Frequencies")
-abline(h=c(248,543,93,11,5), col=c(1:5))
-
-#We refit the model with targeting degree 0 people
-ego.isolates <- ego.deg[1]
-ego.target.stats <- c(ego.edges, ego.sexmatch, ego.isolates)
-ego.fit <- ergm(ego.net ~ edges + nodematch('sex') + degree(0),
-                target.stats = ego.target.stats) 
-
-summary(ego.fit)
-
-ego.sim100 <- simulate(ego.fit, nsim=100,
-                       control=control.simulate.ergm(MCMC.interval=10000))
-sim.stats <- attr(ego.sim100,"stats")
-rbind(sim=colMeans(sim.stats), obs=ego.target.stats)
-
-sim.fulldeg <- summary(ego.sim100 ~ degree(c(0:10)))
-sim.deg <- cbind(sim.fulldeg[,1:4], apply(sim.fulldeg[,5:11],1,sum))
-colnames(sim.deg) <- c(colnames(sim.fulldeg)[1:4],"degree4+")
-rbind(sim=colMeans(sim.deg), obs=ego.deg)
+sim.deg <- cbind(sim.fulldeg[,1:3], apply(sim.fulldeg[,4:11],1,sum))
+colnames(sim.deg) <- c(colnames(sim.fulldeg)[1:3],"degree3+")
+rbind(sim=colMeans(sim.deg), obs=ergm.deg)
 
 matplot(1:nrow(sim.deg), sim.deg, pch=as.character(0:3), cex=.5,
-        main="Comparing ego.sims to non-targeted degree frequencies",
-        sub = "(only 0, 2+ and total edges targeted)",
+        main="Comparing ergm.sims to non-targeted degree frequencies",
+        sub = "(only total edges targeted)",
         xlab = "Replicate", ylab = "Frequencies")
-abline(h=c(248,543,93,11,5), col=c(1:5))
+abline(h=ergm.deg, col=c(1:4))
+
+
+#2
+
+ergm.sim <- simulate(ergm.fit)
+par(mar=c(0,0,0,0))
+vcols <- ifelse(nw %v% 'sex'==1,'pink2','dodgerblue')
+plot(ergm.sim,vertex.cex=0.9,vertex.col=vcols)
+
+#STERGM simulation
+
+dissolution <- ~ offset(edges)
+duration <- 30
+#This function takes an input the dossolution formulaand average duration
+#and transforms it into a logged coefficient for use in estimation of the temporal ERGM.
+coef.diss <- dissolution_coefs(dissolution,duration)
+coef.diss
+
+
+coef.form <- ergm.fit$coef
+coef.form[1] <- coef.form[1] - coef.diss$coef.adj
+
+sim <- simulate(ergm.sim ,
+                formation = ~edges + b1degree(1) + b2degree(1),
+                dissolution = ~ offset(edges),
+                coef.form = coef.form,
+                coef.diss=coef.diss$coef.adj,
+                time.slice=10,
+                constraints = ~.,
+                monitor = ~edges + b1degree(0:5) + b2degree(0:5),
+                control = control.simulate.network(MCMC.burnin.min=10000))
+sim
+
+#Diagnostic:
+est1 <- netest(nw,formation = ~edges + b1degree(1) + b2degree(1),target.stats,
+               dissolution = ~ offset(edges),coef.diss)
+
+dx <- netdx(est1,nsims=5,nsteps=500)
+dx
+plot(dx)
+
+
+colMeans(attributes(sim)$stats)[c(1,3:4,9:10)]
+
+target.stats
+
+#Static plot
+
+par(mfrow=c(1,1),mar=c(0,0,0,0))
+nw.to.plot <- network.extract(sim,at=50)
+plot(nw.to.plot,vertex.cex=0.9,vertex.col=vcols)
+
+#Epidemic model
+#inf.prob: transmission probability per act per time unit
+#act.rate: number of acts per time unit (week)
+param <- param.net(trans.rate=0.0007, act.rate=2)
+
+#initial prevalence
+init <- init.net(i.num=52,i.num.m2=35)
+#visualize in nDTV
+
+#Control
+control <-control.net(type="SI",nsims=5,nsteps=500,verbose.init=0)
+
+#epidemic
+sim1 <- netsim(est1, param,init,control)
+sim1
+#network statistics plot
+plot(sim1,type="formation")
+
+#Epidemic plots
+par(mfrow=c(1,1))
+plot(sim1)
+
+plot(sim1,qnts=FALSE,mean.line=FALSE)
+
+#incidence plot
+plot(sim1,y='si.flow',sim.lines=FALSE,main='Incidence')
+plot(sim1,y='si.flow',sim.lines=FALSE,mean.smooth=TRUE,mean.col='black',add=TRUE)
+
+#NEtwork plots
+par(mar=c(0,0,0,0))
+plot(sim1,type="network",col.status=TRUE,at=1,sim=1)
+
+par(mar=c(0,0,0,0))
+plot(sim1,type="network",col.status=TRUE,at=500,sim=1)
+
+
+slice.par=list(start = 0, 
+               end = 25, 
+               interval = 1, 
+               aggregate.dur = 1, 
+               rule = 'any')
+
+compute.animation(sim, slice.par = slice.par)
+
+render.par = list(tween.frames = 10, 
+                  show.time = T, 
+                  show.stats = "~b1concurrent+b2concurrent")
+
+cols <- transco(c('firebrick', 'steelblue'), 0.7)
+vcols <- ifelse(nw %v% 'sex' == 1, cols[1], cols[2])
+render.animation(sim, 
+                 render.par = render.par, 
+                 vertex.cex = 0.9, 
+                 vertex.col = vcols, 
+                 edge.col = 'darkgrey', 
+                 vertex.border = 'darkgrey',
+                 displaylabels = FALSE)
+
+X11()
+ani.replay()
