@@ -118,11 +118,11 @@ matplot(1:nrow(sim.stats), sim.stats,
 abline(h=target.stats, col=c(1:4))
 
 sim.stats
+ #improvement 
 
-
-ego.sim100 <- simulate(ergm.fit, nsim=100,
+ergm.sim100.2 <- simulate(ergm.fit, nsim=100,
                        control=control.simulate.ergm(MCMC.interval=10000))
-sim.stats <- attr(ego.sim100,"stats")
+sim.stats <- attr(ergm.sim100.2,"stats")
 matplot(1:nrow(sim.stats), sim.stats,
         pch=c("e","f1","m1"), cex=.65,
         main="100 simulations from ergm.fit model", sub="(MCMC.interval=10000)",
@@ -133,19 +133,22 @@ abline(h=1.1*target.stats, col=c(1:3), lty=2)
 
 #Node degree diagnosis
 
-sim.fulldeg <- summary(ego.sim100 ~ degree(c(0:10)))
-colnames(sim.fulldeg) <- paste("deg",0:10, sep='')
+sim.fulldeg <- summary(ergm.sim100.2 ~ degree(1:6))
+#colnames(sim.fulldeg) <- paste("f0","f1","f2","f3","f4","f5"
+#,"f6","m0","m1","m2","m3","m4","m5","m6")
 sim.fulldeg[1:5,]
+rbind(sim=colMeans(sim.fulldeg), obs=)
 
-sim.deg <- cbind(sim.fulldeg[,1:3], apply(sim.fulldeg[,4:11],1,sum))
-colnames(sim.deg) <- c(colnames(sim.fulldeg)[1:3],"degree3+")
-rbind(sim=colMeans(sim.deg), obs=ergm.deg)
 
-matplot(1:nrow(sim.deg), sim.deg, pch=as.character(0:3), cex=.5,
+sim.degb1 <- cbind(sim.fulldeg[,1:3], apply(sim.fulldeg[,4:6],1,sum))
+colnames(sim.deg) <- c(colnames(sim.fulldeg)[1:3],"b1degree3+")
+#rbind(sim=colMeans(sim.deg), obs=c(tg.f.0,tg.f.1,tg.f.2,tg.f.3))
+
+matplot(1:nrow(sim.degb1), sim.degb1, pch=as.character(0:3), cex=.5,
         main="Comparing ergm.sims to non-targeted degree frequencies",
         sub = "(only total edges targeted)",
         xlab = "Replicate", ylab = "Frequencies")
-abline(h=ergm.deg, col=c(1:4))
+abline(h=c(tg.f.0,tg.f.1,tg.f.2,tg.f.3), col=c(1:4))
 
 
 #2
@@ -252,7 +255,7 @@ render.animation(sim,
                  render.par = render.par, 
                  vertex.cex = 0.9, 
                  vertex.col = vcols, 
-                 edge.col = 'darkgrey', 
+                 edge.col = 'da rkgrey', 
                  vertex.border = 'darkgrey',
                  displaylabels = FALSE)
 
