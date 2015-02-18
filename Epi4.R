@@ -5,11 +5,12 @@ library(ergm)
 library(EpiModel)
 library(sna)
 library(coda)
+library(ndtv)
 
 set.seed(0)
 
-num.females <- 372
-num.males <- 361
+num.females <- 37
+num.males <- 36
 nw <- network.initialize(num.females + num.males,bipartite=num.females,directed=F)
 nw %v% 'sex' <- c(rep(1,num.females),rep(2,num.males))
 
@@ -165,7 +166,7 @@ plot(ergm.sim,vertex.cex=0.9,vertex.col=vcols)
 #STERGM simulation
 
 dissolution <- ~ offset(edges)
-duration <- 50
+duration <- 38
 #This function takes an input the dossolution formulaand average duration
 #and transforms it into a logged coefficient for use in estimation of the temporal ERGM.
 coef.diss <- dissolution_coefs(dissolution,duration)
@@ -178,7 +179,7 @@ coef.form
 
 
 
-  ##STERGM
+##STERGM
 #theta.diss <- log(9)
 #stergm.fit.1 <- stergm(ergm.sim,
 #                       formation = ~edges + b1degree(1:2) + b2degree(1:2),
@@ -224,14 +225,14 @@ plot(nw.to.plot,vertex.cex=0.9,vertex.col=vcols)
 #Epidemic model
 #inf.prob: transmission probability per act per time unit
 #act.rate: number of acts per time unit (week)
-param <- param.net(trans.rate=0.007, act.rate=2)
+param <- param.net(trans.rate=0.01, act.rate=4)
 
 #initial prevalence
-init <- init.net(i.num=52,i.num.m2=35)
+init <- init.net(i.num=5,i.num.m2=3)
 #visualize in nDTV
 
 #Control
-control <-control.net(type="SI",nsims=5,nsteps=500,verbose.init=0)
+control <-control.net(type="SI",nsims=2,nsteps=500,verbose.init=0)
 
 #epidemic
 sim1 <- netsim(est1, param,init,control)
@@ -261,29 +262,44 @@ plot(sim1,type="network",col.status=TRUE,at=500,sim=1)
 
 #Animation
 slice.par=list(start = 0, 
-               end = 25, 
+               end = 50, 
                interval = 1, 
                aggregate.dur = 1, 
                rule = 'any')
 
-compute.animation(sim, slice.par = slice.par)
+nw.mov <- sim1$network$sim1
+nw.mov <- color_tea(nw.mov)
+
+
+compute.animation(nw.mov, slice.par = slice.par)
 
 render.par = list(tween.frames = 10, 
-                  show.time = T, 
-                  show.stats = "~b1concurrent+b2concurrent")
+                  show.time = T)
+
+
+
+#plot.par <- list(mar = c(0, 0, 0, 0))
+
 
 cols <- transco(c('firebrick', 'steelblue'), 0.7)
-vcols <- ifelse(nw %v% 'sex' == 1, cols[1], cols[2])
-render.animation(sim, 
+vcols <- ifelse(nw.mov %v% 'testatus.active' == 1, cols[1], cols[2])
+
+
+
+  
+saveGIF(
+  render.animation(nw.mov, 
                  render.par = render.par, 
                  vertex.cex = 0.9, 
-                 vertex.col = vcols, 
+                 vertex.col='ndtvcol', 
                  edge.col = 'darkgrey', 
-                 vertex.border = 'darkgrey',
-                 displaylabels = FALSE)
+                 vertex.border = 'lightgrey',
+                 displaylabels = FALSE),
+clean = FALSE, ani.width = 600, ani.height = 600,
+outdir = getwd(), movie.name = "movvv.gif")
+
 
 X11()
 ani.replay()
-saveVideo(ani.replay(),video.name="stergm.sim.1.mp4",
+saveVideo(ani.replay(),video.name="movvv2",
           other.opts="-b 5000k",clean=TRUE)
-?

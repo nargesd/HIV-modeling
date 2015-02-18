@@ -14,8 +14,8 @@ odeequations=function(t,y,parms)
   I=y[2]; #infected cells
   VI=y[3]; #infectious virus
   VNI=y[4]; #Noninfectious virus
-  
-  if (t<treat.init | (900<t & t<1100) | (1300<t & t<1500) | (1700<t & t<1900)){
+
+  if (t<treat.init | (800<t & t<830) | (860<t & t<890) | (920<t & t<950)){
     dUdt=lambda-d*U-(1-eRTI1)*b*VI*U;
     dIdt=(1-eRTI1)*b*VI*U-delta*I;
     dVIdt=(1-ePI1)*p*I-c*VI;
@@ -39,25 +39,25 @@ odeequations=function(t,y,parms)
 #############
 #main program
 #############
-tmax=2100;              
+tmax=950;              
 timevec=seq(0,tmax,1); #vector of times
 treat.init=700
 treat.int=850
 
 #values for model parameters,
-lambda=10000;#unit: [/mm3 day]
+lambda=10;#unit: [/mm3 day]
 d=0.01;#unit: [/day]
-b=2.4e-8;#unit: [mm3/day]
+b=4.57e-5;#unit: [mm3/day]
 delta=0.4;#unit: [/day]
-p=390;#unit: [/cell day]
-c=13;#unit: [/day]
+p=45;#unit: [/cell day]
+c=2.4;#unit: [/day]
 eRTI1=0; #Reverse Transcriptise Inhibitor efficacy when patient is not getting treatment
 ePI1=0; #Protease Inhibitor efficacy when patient is not getting treatment
-eRTI2=0.3; #Reverse Transcriptise Inhibitor efficacy when patient is getting treatment
-ePI2=0.3; #Protease Inhibitor efficacy when patient is getting treatment
+eRTI2=0.4; #Reverse Transcriptise Inhibitor efficacy when patient is getting treatment
+ePI2=0.4; #Protease Inhibitor efficacy when patient is getting treatment
 
 #Initial condition 
-U=1e6; #initial number of uninfected cells  
+U=1e3; #initial number of uninfected cells  
 VI=1e-6;#initial number for free infectious virus V
 VNI=0; #initial number for free noninfectious virus v
 I=0; #initial number of infected cells 
@@ -68,7 +68,7 @@ Y0=c(U, I, VI, VNI);  #combine initial conditions into a vector
 
 
 
-#layout(matrix(c(1,2),ncol=1, byrow=T))
+layout(matrix(c(1,2),ncol=2, byrow=T))
 
 #plot results
 
@@ -76,11 +76,17 @@ Y0=c(U, I, VI, VNI);  #combine initial conditions into a vector
 #ymin=1e-5; ymax=max(odeoutput3[,4]);
 
 #Plot uninfected cells with its upper and lower bounds
-plot(odeoutput1[,1],odeoutput1[,2]/1000,type="l",xlab="time (days)",ylab="Cell per microliter",main="Uninfected cells", col="purple",lwd=2,xlim=c(0,tmax),ylim=c(0,1e3))
+plot(odeoutput1[,1],odeoutput1[,2],type="l",xlab="time (days)",ylab="Cell per microliter",main="Uninfected cells", col="purple",lwd=2,xlim=c(0,tmax),ylim=c(0,1e3))
 
 #lines(odeoutput2[,2],lty=2,col="purple")
 #lines(odeoutput3[,2],lty=3,col="purple")
-abline(v=seq(treat.init,tmax,200),lty=c(2))
+abline(v=treat.init,lty=c(2))
+abline(v=seq(800,tmax,30),lty=c(2))
+
+
+rect(800,-100,830,1200,col = rgb(0.5,0.5,0.5,1/4),border=NA)
+rect(860,-100,890,1200,col = rgb(0.5,0.5,0.5,1/4),border=NA)
+rect(920,-100,950,1200,col = rgb(0.5,0.5,0.5,1/4),border=NA)
 
 
 #Plot infected T cell with its upper and lower bounds
@@ -92,10 +98,15 @@ abline(v=seq(treat.init,tmax,200),lty=c(2))
 
 
 #Plot viral load with its upper and lower bounds
-plot(odeoutput1[,1],odeoutput1[,4]+odeoutput1[,5],type="l",xlab="time (days)",ylab="Virus per ml",main="Viral load",col="red",lwd=2,xlim=c(0,tmax),log="y")
+plot(odeoutput1[,1],odeoutput1[,4]*1000,type="l",xlab="time (days)",ylab="Virus per ml",main="Viral load",col="red",lwd=2,xlim=c(0,tmax),log="y")
 #lines(odeoutput2[,4],lty=2,col="red")
 #lines(odeoutput3[,4],lty=3,col="red")
-abline(v=seq(treat.init,tmax,200),lty=c(2))
+abline(v=treat.init,lty=c(2))
+abline(v=seq(800,tmax,30),lty=c(2))
+
+rect(800,1e-20,830,1e8,col = rgb(0.5,0.5,0.5,1/4),border=NA)
+rect(860,1e-20,890,1e8,col = rgb(0.5,0.5,0.5,1/4),border=NA)
+rect(920,1e-20,950,1e8,col = rgb(0.5,0.5,0.5,1/4),border=NA)
 
 #par(mar=c(0, 0, 0, 0))
 #plot.new()
