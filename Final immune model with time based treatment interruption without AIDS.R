@@ -66,7 +66,7 @@ n.max=(tmax-treat.int)/int.period
 seq.n = seq(0,n.max,2)
 
 
-main=matrix(,nrow=tmax,ncol=5)
+main=matrix(,nrow=tmax+1,ncol=5)
 #Initial condition 
 
 main[1,2]=1e3; #initial number of uninfected cells  
@@ -78,7 +78,7 @@ milestone=matrix()
 t=2
 for (n in 1:length(seq.n)){
   print(n)
-  while(t<treat.int+(seq.n[n]+2)*int.period & t<=tmax){
+  while(t<treat.int+(seq.n[n]+2)*int.period & t<tmax){
     print(t)
     if (t<treat.init) {
       if(t==1) {Y0=c(1e3,0,1e-6,0)} else {Y0=main[t-1,2:5]}
@@ -115,7 +115,7 @@ for (n in 1:length(seq.n)){
         odeoutput=lsoda(Y0,timevec1,no.treatment,parms="",atol=1e-5)
         main[t,]=odeoutput[2,]
         t=t+1
-        while (t< treat.int+(seq.n[n]+1)*int.period){
+        while (t< treat.int+(seq.n[n]+1)*int.period & t<tmax){
           Y0=main[t-1,2:5]
           timevec1=seq(t-1,t)
           odeoutput=lsoda(Y0,timevec1,no.treatment,parms="",atol=1e-5)
@@ -123,7 +123,7 @@ for (n in 1:length(seq.n)){
           t=t+1}}
       
       else { print("i solve u")
-        while ((t>= treat.int+(seq.n[n]+1)*int.period) & (t < treat.int+(seq.n[n]+2)*int.period)){
+        while ((t>= treat.int+(seq.n[n]+1)*int.period) & (t < treat.int+(seq.n[n]+2)*int.period & t<tmax)){
         print("*")
         print(t)
         Y0=main[t-1,2:5]
