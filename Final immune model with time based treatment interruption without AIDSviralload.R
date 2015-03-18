@@ -9,7 +9,7 @@ require(deSolve)  #loads ODE solver package
 #FOr time t=0 to t=600  and after t=750 there is no treatment 
 
 
-main.program <- function(tmax,int.period){
+main.program.viral <- function(tmax,int.period){
 #values for model parameters,
 lambda=10;#unit: [/mm3 day]
 d=0.01;#unit: [/day]
@@ -138,7 +138,8 @@ for (n in 1:length(seq.n)){
 print("out of bond")
 }
 
-a.plot <- plot(main[,2],type="l",xlab="time (days)",ylab="Cell per microliter",main=paste("Uninfected cells with interruption period:",int.period,"day(s)"), col=int.period+1,lwd=2,xlim=c(0,tmax),ylim=c(0,1e3))
+a.plot <- plot(main[,4]*1000,type="l",xlab="time (days)",ylab="virus per ml",main=paste("Vial load with interruption period:",int.period,"day(s)"), col=int.period+3,lwd=2,xlim=c(0,tmax),log="y")
+
 
 
 b.plot <- abline(v=treat.init,lty=c(2))
@@ -148,33 +149,13 @@ b.plot <- abline(v=treat.init,lty=c(2))
 
 
 d.plot <- for (n in 1: length(seq.n)) { 
-  rect(treat.int+(seq.n[n])*int.period,-100,treat.int+(seq.n[n]+1)*int.period,1200,col = rgb(0.5,0.5,0.5,1/4),border=NA)}
+  rect(treat.int+(seq.n[n])*int.period,1e-20,treat.int+(seq.n[n]+1)*int.period,1e8,col = rgb(0.5,0.5,0.5,1/4),border=NA)}
 
 
-return(list(a.plot))
+return(list(a.plot,d.plot))
 }
 
 
 
 
 
-legend("topright",legend=c("Interruption periods","Upper and lower thresholds (500,700)"),lty=c(NA,3),pch=c(15,NA),col=c("gray","black"),cex=0.7)
-
-plot(main[,4]*1000,type="l",xlab="time (days)",ylab="virus per ml",main="Viral load", col="red",lwd=2,xlim=c(0,tmax),log="y")
-
-abline(v=milestone,lty=c(2))
-rect(milestone[3],1e-20,milestone[4],1e8,col = rgb(0.5,0.5,0.5,1/4),border=NA)
-rect(milestone[5],1e-20,milestone[6],1e8,col = rgb(0.5,0.5,0.5,1/4),border=NA)
-
-milestone
-milestone2=matrix()
-for (t in 2:dim(milestone)[1]){
-  milestone2[t-1]=milestone[t]-milestone[t-1]
-}
-milestone2
-plot(milestone2,type="l",ylab="duration",xlab="on-off treatment")
-points(milestone2,col=rep(1:2,14),pch=15)
-ifelse(treat.init<tmax,legend("topright",cex=0.7,legend=c("On-treatment duration","Off-treatment duration"),pch=15,col=c("red","black")),)
-
-barplot(milestone2,type="l",ylab="duration",xlab="on-off treatment")
-legend("topright",cex=0.7,legend=c("on-treatment duration","Off-treatment duration"),pch=15,col=c("red","black"))
